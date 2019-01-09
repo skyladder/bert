@@ -419,10 +419,18 @@ def convert_single_example(ex_index, example, label_list, max_seq_length,
   # embedding vector (and position vector). This is not *strictly* necessary
   # since the [SEP] token unambiguously separates the sequences, but it makes
   # it easier for the model to learn the concept of sequences.
+  """
+  其中“type_id”用于指示这是第一个序列还是第二个序列。
+  “type=0”和“type=1”的嵌入向量是在预培训期间学习的，
+  并添加到Wordpie嵌入向量（和位置向量）中。这不是*严格*必需的，
+  因为[sep]标记明确地分离序列，但它使模型更容易学习序列的概念。
+  """
   #
   # For classification tasks, the first vector (corresponding to [CLS]) is
   # used as the "sentence vector". Note that this only makes sense because
   # the entire model is fine-tuned.
+  # 对于分类任务，使用第一个向量（对应于[cls]）作为“句子向量”。
+  # 请注意，这只是有意义的，因为整个模型都进行了微调。
   tokens = []
   segment_ids = []
   tokens.append("[CLS]")
@@ -441,6 +449,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length,
     segment_ids.append(1)
 
   input_ids = tokenizer.convert_tokens_to_ids(tokens)
+  # [CLS]和[SEP]是否有相应的index
 
   # The mask has 1 for real tokens and 0 for padding tokens. Only real
   # tokens are attended to.
@@ -448,6 +457,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length,
 
   # Zero-pad up to the sequence length.
   while len(input_ids) < max_seq_length:
+      #在vocab里面不是已经有一个单词的index是0吗
     input_ids.append(0)
     input_mask.append(0)
     segment_ids.append(0)

@@ -162,7 +162,7 @@ class FullTokenizer(object):
   """Runs end-to-end tokenziation."""
 
   def __init__(self, vocab_file, do_lower_case=True):
-    self.vocab = load_vocab(vocab_file)
+    self.vocab = load_vocab(vocab_file)#{token:index}
     self.inv_vocab = {v: k for k, v in self.vocab.items()}
     self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case)
     self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
@@ -205,14 +205,17 @@ class BasicTokenizer(object):
     # characters in the vocabulary because Wikipedia does have some Chinese
     # words in the English Wikipedia.).
     text = self._tokenize_chinese_chars(text)
+    #将汉字用空格隔开
 
     orig_tokens = whitespace_tokenize(text)
+    #移除头尾空格，并按照空格分割
     split_tokens = []
     for token in orig_tokens:
       if self.do_lower_case:
         token = token.lower()
         token = self._run_strip_accents(token)
       split_tokens.extend(self._run_split_on_punc(token))
+        #按照标签符号切割字符
 
     output_tokens = whitespace_tokenize(" ".join(split_tokens))
     return output_tokens
@@ -220,10 +223,14 @@ class BasicTokenizer(object):
   def _run_strip_accents(self, text):
     """Strips accents from a piece of text."""
     text = unicodedata.normalize("NFD", text)
+    # normalize() 第一个参数指定字符串标准化的方式。
+    #  NFC表示字符应该是整体组成(比如可能的话就使用单一编码)，
+    # 而NFD表示字符应该分解为多个组合字符表示。
     output = []
     for char in text:
       cat = unicodedata.category(char)
       if cat == "Mn":
+        #去掉重音符
         continue
       output.append(char)
     return "".join(output)
@@ -288,9 +295,13 @@ class BasicTokenizer(object):
     output = []
     for char in text:
       cp = ord(char)
+      # ord() 函数是 chr() 函数（对于8位的ASCII字符串）或 unichr() 函数（对于Unicode对象）的配对函数，
+      # 它以一个字符（长度为1的字符串）作为参数，返回对应的 ASCII 数值，或者 Unicode 数值，
+      # 如果所给的 Unicode 字符超出了你的 Python 定义范围，则会引发一个 TypeError 的异常。
       if cp == 0 or cp == 0xfffd or _is_control(char):
         continue
       if _is_whitespace(char):
+        # 如果属于换行符、制表符等，则转化为空格
         output.append(" ")
       else:
         output.append(char)
